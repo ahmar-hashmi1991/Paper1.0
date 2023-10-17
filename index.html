@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Text with Paper.js</title>
     <script src="lib/paper-full.min.js"></script>
     <script src="lib/jscolor.js"></script>
-</head>
-<body>
-    <button onclick="toggleMode(modes.pan)">Toggle Pan</button>
-    <button onclick="toggleMode(modes.drawing)">Toggle Drawing</button>
-    <input id='colorPicker' value="#000000" data-jscolor="">
+  </head>
+  <body>
+    <button id="toggle-button">Toggle Pan/Drawing</button>
+    <input id="colorPicker" value="#000000" data-jscolor="" />
     <button onclick="clearCanvas()">Clear</button>
-    <button onclick="restoreCanvas()">Restore</button>
 
-    <canvas id="myCanvas" width="400" height="400" style="border: 1px solid black;"></canvas>
+    <canvas
+      id="myCanvas"
+      width="400"
+      height="400"
+      style="border: 1px solid black"
+    ></canvas>
     <button onclick="exportCanvasToImage()">Export to JPG</button>
     <div id="bottomButtons">
-        <div class="buttonsWrapper">
-            <p class="buttonsTitle">Objects</p>
-            <div class="buttons">
-                <button onclick="createCirc(200,300,20,'red')">Circ</button>
-                <button onclick="createRect(200, 300, 25, 25, 'green')">Rect</button>
-            </div>
-
+      <div class="buttonsWrapper">
+        <p class="buttonsTitle">Objects</p>
+        <div class="buttons">
+          <button onclick="createCirc(50,50,20,'red')">Circ</button>
+          <button onclick="createRect(75, 75, 25, 25, 'green')">Rect</button>
+          <button onclick="groupObjects(true)">Group</button>
+          <button onclick="groupObjects(false)">Ungroup</button>
         </div>
+      </div>
 
-        <div class="buttonsWrapper">
-            <p class="buttonsTitle">Image</p>
-            <input id="myImg" type="file" accept="image/*">
-        </div>
+      <button id="undo-button">Undo</button>
     </div>
     <script src="index.js"></script>
-</body>
+  </body>
 </html>
