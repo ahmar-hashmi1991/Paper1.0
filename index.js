@@ -14,15 +14,26 @@ var canvasHeight = paper.view.viewSize.height;
 
 // Create drawing and panning tools
 let tool = new paper.Tool();
-// const panningTool = new paper.Tool();
-
-// Set the initial active tool to drawing
-// let activeTool = panningTool;
 
 // Create a variable to hold the current path being drawn
 let currentPath = null;
 
-var canvasState = [];
+var canvasState = null;
+
+// Set the initial line thickness
+var lineThicknessSlider = document.getElementById("lineThicknessSlider");
+var lineThicknessValue = document.getElementById("lineThicknessValue");
+
+// Function to update line thickness when the slider changes
+lineThicknessSlider.addEventListener("input", function () {
+  var thickness = parseFloat(lineThicknessSlider.value);
+  if (!currentPath) {
+    currentPath = new paper.Path();
+  }
+  currentPath.strokeWidth = thickness;
+  lineThicknessValue.textContent = thickness;
+  paper.view.draw();
+});
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
@@ -48,7 +59,8 @@ paper.view.onMouseDown = function (event) {
   } else {
     console.log("inside onmousedown without panmode");
     currentPath = new paper.Path();
-    currentPath.strokeColor = "black";
+    currentPath.strokeWidth = parseFloat(lineThicknessSlider.value);
+    currentPath.strokeColor = color;
     currentPath.add(event.point);
   }
 };
@@ -110,16 +122,23 @@ const setColorListener = () => {
     (event) => {
       console.log(event.target.value);
       color = "#" + event.target.value;
-      canvas.freeDrawingBrush.color = color;
-      canvas.requestRenderAll();
     },
     { passive: true }
   );
 };
 
 const clearCanvas = () => {
+  canvasState = paper.project.exportJSON();
   paper.project.activeLayer.removeChildren();
   paper.view.update();
+};
+
+const restoreCanvas = () => {
+  if (canvasState) {
+    paper.project.clear();
+    paper.project.importJSON(canvasState);
+    paper.view.update();
+  }
 };
 
 const addTextToPaper = (x, y, content) => {

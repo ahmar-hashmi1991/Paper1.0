@@ -11,7 +11,18 @@
     <button id="toggle-button">Toggle Pan/Drawing</button>
     <input id="colorPicker" value="#000000" data-jscolor="" />
     <button onclick="clearCanvas()">Clear</button>
-
+    <button onclick="restoreCanvas()">Restore</button>
+    <div>
+      <input
+        type="range"
+        id="lineThicknessSlider"
+        min="1"
+        max="10"
+        step="1"
+        value="2"
+      />
+      <span id="lineThicknessValue">2</span> points
+    </div>
     <canvas
       id="myCanvas"
       width="400"
