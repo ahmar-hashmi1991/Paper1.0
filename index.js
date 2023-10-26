@@ -272,4 +272,34 @@ document.addEventListener("DOMContentLoaded", function () {
   // var rect = createRect(200, 200, 25, 25, "green");
   // copyElementOnCanvas(circle);
   // copyElementOnCanvas(rect);
+
+  // Create a Raster object to display the background image
+  var raster = new paper.Raster({
+    //    source: "C://Users//Ahmar//Downloads//dp.jpg", // You can set a default image path here
+    source:
+      "https://picsum.photos/seed/picsum/" + canvasWidth + "/" + canvasHeight,
+    position: paper.view.center,
+  });
+
+  // Function to handle the "Load Image" button click event
+  document.getElementById("loadImage").addEventListener("click", function () {
+    raster.remove();
+
+    var imageUrl = document.getElementById("myImgUrlInput").value;
+    console.log("imageUrl >> ", imageUrl);
+
+    raster = new paper.Raster({
+      source: imageUrl,
+      position: paper.view.center,
+    });
+  });
+
+  // Function to handle the "Clear Image" button click event
+  document.getElementById("clearImage").addEventListener("click", function () {
+    // Clear the background image
+    raster.source = null; // or use an empty string raster.source = '';
+
+    // Optionally, you can clear the image bounds as well
+    raster.setBounds(new paper.Rectangle());
+  });
 });
