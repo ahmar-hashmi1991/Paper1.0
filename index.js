@@ -20,6 +20,14 @@ let currentPath = null;
 
 var canvasState = null;
 
+var shapes = [];
+var paths = [];
+var selectedShape = null;
+var circle = null;
+var rect = null;
+
+var undoStack = [];
+
 // Set the initial line thickness
 var lineThicknessSlider = document.getElementById("lineThicknessSlider");
 var lineThicknessValue = document.getElementById("lineThicknessValue");
@@ -62,6 +70,9 @@ paper.view.onMouseDown = function (event) {
     currentPath.strokeWidth = parseFloat(lineThicknessSlider.value);
     currentPath.strokeColor = color;
     currentPath.add(event.point);
+    paths.push(currentPath);
+
+    undoStack.length = 0;
   }
 };
 
@@ -90,7 +101,9 @@ paper.view.onMouseDrag = function (event) {
     panStart = event.point;
   } else {
     console.log("inside onmousedrag without panmode");
-    currentPath.add(event.point);
+    if (paths.length > 0) {
+      paths[paths.length - 1].add(event.point);
+    }
   }
 };
 
@@ -114,6 +127,16 @@ toggleButton.addEventListener("click", function () {
 });
 
 const undoButton = document.getElementById("undo-button");
+
+// Undo button click handler
+undoButton.addEventListener("click", function () {
+  if (paths.length > 0) {
+    paths.pop().remove();
+  } else if (shapes.length > 0) {
+    shapes.pop().remove();
+  }
+  paper.view.update();
+});
 
 const setColorListener = () => {
   const picker = document.getElementById("colorPicker");
@@ -226,20 +249,28 @@ const invertCanvasByXDegrees = (x) => {
 
 const createCirc = (originX, originY, radius, color) => {
   // Create a circle
-  return new paper.Path.Circle({
+  circle = new paper.Path.Circle({
     center: [originX, originY],
     radius: radius,
     fillColor: color,
   });
+  shapes.push(circle);
+  undoStack.length = 0;
+
+  return circle;
 };
 
 const createRect = (top, left, width, height, color) => {
   // Create a rectangle
-  return new paper.Path.Rectangle({
+  rect = new paper.Path.Rectangle({
     point: [top, left], // Top-left corner of the rectangle
     size: [width, height], // Width and height of the rectangle
     fillColor: color, // Fill color of the rectangle
   });
+  shapes.push(rect);
+  undoStack.length = 0;
+
+  return rect;
 };
 
 const copyElementOnCanvas = (elem) => {
