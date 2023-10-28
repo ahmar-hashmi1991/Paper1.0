@@ -53,36 +53,60 @@ function createPathPoint(x, y, pressure) {
   return newPoint;
 }
 
-// Handle touch/pointer events for pressure sensitivity
+// // Handle touch/pointer events for pressure sensitivity
+// function handlePressureEvents(event) {
+//   // console.log("handlePressureEvents >> ", event);
+
+//   if (event.touches) {
+//     // For touch devices
+//     var touch = event.touches[0];
+//     var x = touch.clientX;
+//     var y = touch.clientY;
+//     var pressure = touch.force || 0.5; // Fallback value
+//     var type = event.type;
+//   } else {
+//     // For pointer devices (e.g., stylus)
+//     var x = event.clientX;
+//     var y = event.clientY;
+//     var pressure = event.pressure || 0.5; // Fallback value
+//     var type = event.pointerType;
+//   }
+
+//   if (pressure !== 0.5) {
+//     console.log("pressure >> ", pressure);
+//   }
+//   if (type === "pen" || type === "touch") {
+//     // console.log("type >> ", type);
+//     if (event.type === "pointerdown" || event.type === "touchstart") {
+//       currentPath = new paper.Path();
+//       currentPath.strokeColor = "black";
+//       lastPoint = createPathPoint(x, y, pressure);
+//     } else if (event.type === "pointermove" || event.type === "touchmove") {
+//       var newPoint = createPathPoint(x, y, pressure);
+//       currentPath.add(newPoint);
+//       currentPath.smooth();
+//       lastPoint = newPoint;
+//     }
+//   }
+// }
+
+// Handle pointer events for pressure sensitivity
 function handlePressureEvents(event) {
-  // console.log("handlePressureEvents >> ", event);
-
-  if (event.touches) {
-    // For touch devices
-    var touch = event.touches[0];
-    var x = touch.clientX;
-    var y = touch.clientY;
-    var pressure = touch.force || 0.5; // Fallback value
-    var type = event.type;
-  } else {
-    // For pointer devices (e.g., stylus)
-    var x = event.clientX;
-    var y = event.clientY;
-    var pressure = event.pressure || 0.5; // Fallback value
-    var type = event.pointerType;
-  }
-
-  if (pressure !== 0.5) {
-    console.log("pressure >> ", pressure);
-  }
-  if (type === "pen" || type === "touch") {
-    // console.log("type >> ", type);
+  if (event.pointerType === "pen" || event.pointerType === "touch") {
     if (event.type === "pointerdown" || event.type === "touchstart") {
       currentPath = new paper.Path();
       currentPath.strokeColor = "black";
-      lastPoint = createPathPoint(x, y, pressure);
+      lastPoint = createPathPoint(
+        event.clientX,
+        event.clientY,
+        event.pressure || 0.5
+      );
     } else if (event.type === "pointermove" || event.type === "touchmove") {
-      var newPoint = createPathPoint(x, y, pressure);
+      var newPoint = createPathPoint(
+        event.clientX,
+        event.clientY,
+        event.pressure || 0.5
+      );
       currentPath.add(newPoint);
       currentPath.smooth();
       lastPoint = newPoint;
