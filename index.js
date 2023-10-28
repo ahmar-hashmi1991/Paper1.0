@@ -1,7 +1,7 @@
 paper.setup("myCanvas"); // 'myCanvas' should match the ID of your canvas element
 var canvas = paper.project.view;
 
-let color = "#000000";
+var color = "#000000";
 const group = {};
 var selectedItem = null;
 var panStart = new paper.Point(0, 0);
@@ -13,15 +13,15 @@ var canvasWidth = paper.view.viewSize.width;
 var canvasHeight = paper.view.viewSize.height;
 
 // Create drawing and panning tools
-let tool = new paper.Tool();
+var tool = new paper.Tool();
 
 // Create a variable to hold the current path being drawn
-let currentPath = null;
+var currentPath = null;
+var lastPoint = null;
 
 var canvasState = null;
 
-var shapes = [];
-var paths = [];
+var items = [];
 var selectedShape = null;
 var circle = null;
 var rect = null;
@@ -45,11 +45,10 @@ lineThicknessSlider.addEventListener("input", function () {
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
-    console.log("inside onmousedown with panmode");
+    // console.log("inside onmousedown with panmode");
     // Check if an item was clicked
     var hitResult = paper.project.hitTest(event.point);
     if (hitResult && hitResult.item) {
-      console.log("inside hitResult");
       if (selectedItem) {
         selectedItem.selected = false;
         boundingBox.remove();
@@ -65,12 +64,12 @@ paper.view.onMouseDown = function (event) {
     }
     panStart = event.point;
   } else {
-    console.log("inside onmousedown without panmode");
+    // console.log("inside onmousedown without panmode");
     currentPath = new paper.Path();
     currentPath.strokeWidth = parseFloat(lineThicknessSlider.value);
     currentPath.strokeColor = color;
     currentPath.add(event.point);
-    paths.push(currentPath);
+    items.push(currentPath);
 
     undoStack.length = 0;
   }
@@ -80,7 +79,7 @@ paper.view.onMouseDown = function (event) {
 paper.view.onMouseDrag = function (event) {
   // Check if we have a selected item
   if (panMode) {
-    console.log("inside onmousedrag with panmode");
+    // console.log("inside onmousedrag with panmode");
     var delta = event.point.subtract(panStart);
     var newPosition = selectedItem.position.add(delta);
 
@@ -100,9 +99,9 @@ paper.view.onMouseDrag = function (event) {
     boundingBox.position = selectedItem.position;
     panStart = event.point;
   } else {
-    console.log("inside onmousedrag without panmode");
-    if (paths.length > 0) {
-      paths[paths.length - 1].add(event.point);
+    // console.log("inside onmousedrag without panmode");
+    if (items.length > 0) {
+      items[items.length - 1].add(event.point);
     }
   }
 };
@@ -114,7 +113,7 @@ paper.view.onMouseUp = function (event) {
   }
   if (panMode) {
   } else {
-    console.log("inside onmouseup without panmode");
+    // console.log("inside onmouseup without panmode");
     currentPath.add(event.point);
     currentPath = null;
   }
@@ -130,10 +129,8 @@ const undoButton = document.getElementById("undo-button");
 
 // Undo button click handler
 undoButton.addEventListener("click", function () {
-  if (paths.length > 0) {
-    paths.pop().remove();
-  } else if (shapes.length > 0) {
-    shapes.pop().remove();
+  if (items.length > 0) {
+    items.pop().remove();
   }
   paper.view.update();
 });
@@ -143,7 +140,7 @@ const setColorListener = () => {
   picker.addEventListener(
     "change",
     (event) => {
-      console.log(event.target.value);
+      // console.log(event.target.value);
       color = "#" + event.target.value;
     },
     { passive: true }
@@ -254,7 +251,7 @@ const createCirc = (originX, originY, radius, color) => {
     radius: radius,
     fillColor: color,
   });
-  shapes.push(circle);
+  items.push(circle);
   undoStack.length = 0;
 
   return circle;
@@ -267,7 +264,7 @@ const createRect = (top, left, width, height, color) => {
     size: [width, height], // Width and height of the rectangle
     fillColor: color, // Fill color of the rectangle
   });
-  shapes.push(rect);
+  items.push(rect);
   undoStack.length = 0;
 
   return rect;
@@ -287,6 +284,61 @@ const copyElementOnCanvas = (elem) => {
   // Draw the rasterized image onto the canvas
   ctx.drawImage(elemRaster.canvas, 0, 0);
 };
+
+// Function to create a path point with pressure sensitivity
+function createPathPoint(x, y, pressure) {
+  var point = new paper.Point(x, y);
+  var strokeWidth = pressure * 10; // Adjust this factor as needed
+  lineThicknessValue.textContent = strokeWidth;
+  var newPoint = new paper.Path.Circle(point, strokeWidth);
+  newPoint.fillColor = "black";
+  return newPoint;
+}
+
+// Handle touch/pointer events for pressure sensitivity
+function handlePressureEvents(event) {
+  // console.log("handlePressureEvents >> ", event);
+
+  if (event.touches) {
+    // For touch devices
+    var touch = event.touches[0];
+    var x = touch.clientX;
+    var y = touch.clientY;
+    var pressure = touch.force || 0.5; // Fallback value
+    var type = event.type;
+  } else {
+    // For pointer devices (e.g., stylus)
+    var x = event.clientX;
+    var y = event.clientY;
+    var pressure = event.pressure || 0.5; // Fallback value
+    var type = event.pointerType;
+  }
+
+  if (pressure !== 0.5) {
+    console.log("pressure >> ", pressure);
+  }
+  if (type === "pen" || type === "touch") {
+    // console.log("type >> ", type);
+    if (event.type === "pointerdown" || event.type === "touchstart") {
+      currentPath = new paper.Path();
+      currentPath.strokeColor = "black";
+      lastPoint = createPathPoint(x, y, pressure);
+    } else if (event.type === "pointermove" || event.type === "touchmove") {
+      var newPoint = createPathPoint(x, y, pressure);
+      currentPath.add(newPoint);
+      currentPath.smooth();
+      lastPoint = newPoint;
+    }
+  }
+}
+
+// Add event listeners for touch/pointer events
+document.addEventListener("pointerdown", handlePressureEvents);
+document.addEventListener("pointermove", handlePressureEvents);
+document.addEventListener("pointerup", handlePressureEvents);
+document.addEventListener("touchstart", handlePressureEvents);
+document.addEventListener("touchmove", handlePressureEvents);
+document.addEventListener("touchend", handlePressureEvents);
 
 document.addEventListener("DOMContentLoaded", function () {
   // Initialize Paper.js
@@ -317,7 +369,6 @@ document.addEventListener("DOMContentLoaded", function () {
     raster.remove();
 
     var imageUrl = document.getElementById("myImgUrlInput").value;
-    console.log("imageUrl >> ", imageUrl);
 
     raster = new paper.Raster({
       source: imageUrl,
