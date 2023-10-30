@@ -115,12 +115,12 @@ function handlePressureEvents(event) {
 }
 
 // Add event listeners for touch/pointer events
-document.addEventListener("pointerdown", handlePressureEvents);
-document.addEventListener("pointermove", handlePressureEvents);
-document.addEventListener("pointerup", handlePressureEvents);
-document.addEventListener("touchstart", handlePressureEvents);
-document.addEventListener("touchmove", handlePressureEvents);
-document.addEventListener("touchend", handlePressureEvents);
+// document.addEventListener("pointerdown", handlePressureEvents);
+// document.addEventListener("pointermove", handlePressureEvents);
+// document.addEventListener("pointerup", handlePressureEvents);
+// document.addEventListener("touchstart", handlePressureEvents);
+// document.addEventListener("touchmove", handlePressureEvents);
+// document.addEventListener("touchend", handlePressureEvents);
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
