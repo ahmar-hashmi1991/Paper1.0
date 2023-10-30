@@ -44,33 +44,44 @@ lineThicknessSlider.addEventListener("input", function () {
 });
 
 var lastPoint;
+var lineWidth = 5;
 
 // Handle pointer events for pressure sensitivity
 function handlePressureEvents(event) {
-  if (event.pointerType === "pen" || event.pointerType === "touch") {
-    if (event.type === "pointerdown" || event.type === "touchstart") {
-      currentPath = new paper.Path();
-      currentPath.strokeColor = "black";
-      currentPath.strokeWidth = event.pressure * 20; // Set initial width based on pressure
-      lastPoint = new paper.Point(event.clientX, event.clientY);
-      currentPath.moveTo(lastPoint);
-    } else if (event.type === "pointermove" || event.type === "touchmove") {
-      var currentPoint = new paper.Point(event.clientX, event.clientY);
-      currentPath.strokeWidth = event.pressure * 20; // Adjust the line width based on pressure
-      currentPath.lineTo(currentPoint);
-      lastPoint = currentPoint;
-    }
+  if (event.type === "mousedown" || event.type === "touchstart") {
+    currentPath = new paper.Path();
+    currentPath.strokeColor = "black";
+    currentPath.strokeWidth = lineWidth;
+    lastPoint = new paper.Point(event.point);
+    currentPath.moveTo(lastPoint);
+  } else if (event.type === "mousemove" || event.type === "touchmove") {
+    var currentPoint = new paper.Point(event.point);
+    currentPath.strokeWidth = lineWidth * event.pressure || 0.5;
+    currentPath.lineTo(currentPoint);
+    lastPoint = currentPoint;
   }
 }
 
 // Add event listeners for pointer events
-document.addEventListener("pointerdown", handlePressureEvents);
-document.addEventListener("pointermove", handlePressureEvents);
-document.addEventListener("pointerup", function () {
-  currentPath = null; // Reset the path when the pointer is lifted
+document.addEventListener("mousedown", handlePressureEvents);
+document.addEventListener("mousemove", handlePressureEvents);
+document.addEventListener("mouseup", function () {
+  currentPath = null; // Reset the path when the mouse is released
 });
-document.addEventListener("touchstart", handlePressureEvents);
-document.addEventListener("touchmove", handlePressureEvents);
+
+// Add touch events for mobile devices
+document.addEventListener("touchstart", function (e) {
+  e.preventDefault();
+  handlePressureEvents({ type: "touchstart", point: e.touches[0] });
+});
+document.addEventListener("touchmove", function (e) {
+  e.preventDefault();
+  handlePressureEvents({
+    type: "touchmove",
+    point: e.touches[0],
+    pressure: e.touches[0].force || 0.5,
+  });
+});
 document.addEventListener("touchend", function () {
   currentPath = null; // Reset the path when the touch ends
 });
