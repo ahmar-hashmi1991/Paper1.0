@@ -53,11 +53,11 @@ function handlePressureEvents(event) {
     currentPath.strokeColor = "black";
     currentPath.strokeWidth = lineWidth;
     lastPoint = new paper.Point(event.point);
-    currentPath.moveTo(lastPoint);
+    // currentPath.moveTo(lastPoint);
   } else if (event.type === "mousemove" || event.type === "touchmove") {
     var currentPoint = new paper.Point(event.point);
     currentPath.strokeWidth = lineWidth * event.pressure || 0.5;
-    currentPath.lineTo(currentPoint);
+    // currentPath.lineTo(currentPoint);
     lastPoint = currentPoint;
   }
 }
