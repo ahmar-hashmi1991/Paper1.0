@@ -43,15 +43,7 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
-// Function to create a path segment with pressure sensitivity
-function createPathSegment(x, y, pressure) {
-  var point = new paper.Point(x, y);
-  var strokeWidth = pressure * 20; // Adjust this factor as needed
-  var segment = new paper.Segment(point);
-  segment.handleIn = new paper.Point(-strokeWidth, -strokeWidth);
-  segment.handleOut = new paper.Point(strokeWidth, strokeWidth);
-  return segment;
-}
+var lastPoint;
 
 // Handle pointer events for pressure sensitivity
 function handlePressureEvents(event) {
@@ -59,33 +51,29 @@ function handlePressureEvents(event) {
     if (event.type === "pointerdown" || event.type === "touchstart") {
       currentPath = new paper.Path();
       currentPath.strokeColor = "black";
-      currentPath.strokeWidth = 5; // Set an initial width
-      lastPoint = createPathSegment(
-        event.clientX,
-        event.clientY,
-        event.pressure || 0.5
-      );
-      currentPath.add(lastPoint);
+      currentPath.strokeWidth = event.pressure * 20; // Set initial width based on pressure
+      lastPoint = new paper.Point(event.clientX, event.clientY);
+      currentPath.moveTo(lastPoint);
     } else if (event.type === "pointermove" || event.type === "touchmove") {
-      var newSegment = createPathSegment(
-        event.clientX,
-        event.clientY,
-        event.pressure || 0.5
-      );
-      currentPath.add(newSegment);
-      currentPath.smooth();
-      lastPoint = newSegment;
+      var currentPoint = new paper.Point(event.clientX, event.clientY);
+      currentPath.strokeWidth = event.pressure * 20; // Adjust the line width based on pressure
+      currentPath.lineTo(currentPoint);
+      lastPoint = currentPoint;
     }
   }
 }
 
-// Add event listeners for touch/pointer events
+// Add event listeners for pointer events
 document.addEventListener("pointerdown", handlePressureEvents);
 document.addEventListener("pointermove", handlePressureEvents);
-document.addEventListener("pointerup", handlePressureEvents);
+document.addEventListener("pointerup", function () {
+  currentPath = null; // Reset the path when the pointer is lifted
+});
 document.addEventListener("touchstart", handlePressureEvents);
 document.addEventListener("touchmove", handlePressureEvents);
-document.addEventListener("touchend", handlePressureEvents);
+document.addEventListener("touchend", function () {
+  currentPath = null; // Reset the path when the touch ends
+});
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
