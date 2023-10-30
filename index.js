@@ -43,52 +43,15 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
-// Function to create a path point with pressure sensitivity
-function createPathPoint(x, y, pressure) {
+// Function to create a path segment with pressure sensitivity
+function createPathSegment(x, y, pressure) {
   var point = new paper.Point(x, y);
-  var strokeWidth = pressure * 10; // Adjust this factor as needed
-  lineThicknessValue.textContent = strokeWidth;
-  var newPoint = new paper.Path.Circle(point, strokeWidth);
-  newPoint.fillColor = "black";
-  return newPoint;
+  var strokeWidth = pressure * 20; // Adjust this factor as needed
+  var segment = new paper.Segment(point);
+  segment.handleIn = new paper.Point(-strokeWidth, -strokeWidth);
+  segment.handleOut = new paper.Point(strokeWidth, strokeWidth);
+  return segment;
 }
-
-// // Handle touch/pointer events for pressure sensitivity
-// function handlePressureEvents(event) {
-//   // console.log("handlePressureEvents >> ", event);
-
-//   if (event.touches) {
-//     // For touch devices
-//     var touch = event.touches[0];
-//     var x = touch.clientX;
-//     var y = touch.clientY;
-//     var pressure = touch.force || 0.5; // Fallback value
-//     var type = event.type;
-//   } else {
-//     // For pointer devices (e.g., stylus)
-//     var x = event.clientX;
-//     var y = event.clientY;
-//     var pressure = event.pressure || 0.5; // Fallback value
-//     var type = event.pointerType;
-//   }
-
-//   if (pressure !== 0.5) {
-//     console.log("pressure >> ", pressure);
-//   }
-//   if (type === "pen" || type === "touch") {
-//     // console.log("type >> ", type);
-//     if (event.type === "pointerdown" || event.type === "touchstart") {
-//       currentPath = new paper.Path();
-//       currentPath.strokeColor = "black";
-//       lastPoint = createPathPoint(x, y, pressure);
-//     } else if (event.type === "pointermove" || event.type === "touchmove") {
-//       var newPoint = createPathPoint(x, y, pressure);
-//       currentPath.add(newPoint);
-//       currentPath.smooth();
-//       lastPoint = newPoint;
-//     }
-//   }
-// }
 
 // Handle pointer events for pressure sensitivity
 function handlePressureEvents(event) {
@@ -96,31 +59,33 @@ function handlePressureEvents(event) {
     if (event.type === "pointerdown" || event.type === "touchstart") {
       currentPath = new paper.Path();
       currentPath.strokeColor = "black";
-      lastPoint = createPathPoint(
+      currentPath.strokeWidth = 5; // Set an initial width
+      lastPoint = createPathSegment(
         event.clientX,
         event.clientY,
         event.pressure || 0.5
       );
+      currentPath.add(lastPoint);
     } else if (event.type === "pointermove" || event.type === "touchmove") {
-      var newPoint = createPathPoint(
+      var newSegment = createPathSegment(
         event.clientX,
         event.clientY,
         event.pressure || 0.5
       );
-      currentPath.add(newPoint);
+      currentPath.add(newSegment);
       currentPath.smooth();
-      lastPoint = newPoint;
+      lastPoint = newSegment;
     }
   }
 }
 
 // Add event listeners for touch/pointer events
-// document.addEventListener("pointerdown", handlePressureEvents);
-// document.addEventListener("pointermove", handlePressureEvents);
-// document.addEventListener("pointerup", handlePressureEvents);
-// document.addEventListener("touchstart", handlePressureEvents);
-// document.addEventListener("touchmove", handlePressureEvents);
-// document.addEventListener("touchend", handlePressureEvents);
+document.addEventListener("pointerdown", handlePressureEvents);
+document.addEventListener("pointermove", handlePressureEvents);
+document.addEventListener("pointerup", handlePressureEvents);
+document.addEventListener("touchstart", handlePressureEvents);
+document.addEventListener("touchmove", handlePressureEvents);
+document.addEventListener("touchend", handlePressureEvents);
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
