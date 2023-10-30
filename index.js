@@ -63,9 +63,9 @@ function handlePressureEvents(event) {
 }
 
 // Add event listeners for pointer events
-document.addEventListener("mousedown", handlePressureEvents);
-document.addEventListener("mousemove", handlePressureEvents);
-document.addEventListener("mouseup", function () {
+document.addEventListener("pointerdown", handlePressureEvents);
+document.addEventListener("pointermove", handlePressureEvents);
+document.addEventListener("pointerup", function () {
   currentPath = null; // Reset the path when the mouse is released
 });
 
