@@ -44,44 +44,33 @@ lineThicknessSlider.addEventListener("input", function () {
 });
 
 var lastPoint;
-var lineWidth = 5;
 
-// Handle pointer events for pressure sensitivity
+// Handle touch events for pressure sensitivity (size-based)
 function handlePressureEvents(event) {
-  if (event.type === "pointerdown" || event.type === "touchstart") {
+  if (event.type === "touchstart") {
     currentPath = new paper.Path();
     currentPath.strokeColor = "black";
-    currentPath.strokeWidth = lineWidth;
-    lastPoint = new paper.Point(event.point);
-    // currentPath.moveTo(lastPoint);
-  } else if (event.type === "pointermove" || event.type === "touchmove") {
-    var currentPoint = new paper.Point(event.point);
-    currentPath.strokeWidth = lineWidth * event.pressure || 0.5;
-    // currentPath.lineTo(currentPoint);
+    lastPoint = new paper.Point(
+      event.touches[0].clientX,
+      event.touches[0].clientY
+    );
+    currentPath.moveTo(lastPoint);
+  } else if (event.type === "touchmove") {
+    var currentPoint = new paper.Point(
+      event.touches[0].clientX,
+      event.touches[0].clientY
+    );
+    var touchArea = event.touches[0].radiusX * event.touches[0].radiusY;
+    var strokeWidth = Math.sqrt(touchArea) * 2;
+    currentPath.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
+    currentPath.lineTo(currentPoint);
     lastPoint = currentPoint;
   }
 }
 
-// Add event listeners for pointer events
-document.addEventListener("pointerdown", handlePressureEvents);
-document.addEventListener("pointermove", handlePressureEvents);
-document.addEventListener("pointerup", function () {
-  currentPath = null; // Reset the path when the mouse is released
-});
-
-// Add touch events for mobile devices
-document.addEventListener("touchstart", function (e) {
-  e.preventDefault();
-  handlePressureEvents({ type: "touchstart", point: e.touches[0] });
-});
-document.addEventListener("touchmove", function (e) {
-  e.preventDefault();
-  handlePressureEvents({
-    type: "touchmove",
-    point: e.touches[0],
-    pressure: e.touches[0].force || 0.5,
-  });
-});
+// Add touch events for iPad/iPhone
+document.addEventListener("touchstart", handlePressureEvents);
+document.addEventListener("touchmove", handlePressureEvents);
 document.addEventListener("touchend", function () {
   currentPath = null; // Reset the path when the touch ends
 });
