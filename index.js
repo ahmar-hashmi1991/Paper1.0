@@ -40,6 +40,19 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
+var tool = new paper.Tool();
+
+tool.onMouseDown = function (event) {
+  if (panMode) {
+  } else {
+    console.log("event >> ", event);
+    currentPath = new paper.Path();
+    path.add(event.point);
+    path.strokeWidth = event.touchArea * 10;
+    paper.view.draw();
+  }
+};
+
 paper.view.onMouseDown = function (event) {
   if (panMode) {
     // console.log("inside onmousedown with panmode");
@@ -63,9 +76,7 @@ paper.view.onMouseDown = function (event) {
   } else {
     // console.log("inside onmousedown without panmode");
     currentPath = new paper.Path();
-    var pressure = event.pressure;
-    currentPath.strokeWidth =
-      parseFloat(lineThicknessSlider.value) * pressure * 10;
+    currentPath.strokeWidth = parseFloat(lineThicknessSlider.value);
     currentPath.strokeColor = color;
     currentPath.add(event.point);
     items.push(currentPath);
