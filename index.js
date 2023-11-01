@@ -40,59 +40,47 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
-var lastPoint;
+var initialWidth = 5; // Initial stroke width
 
-// Handle touch events for pressure sensitivity (simulated with touch area)
-function handlePressureEvents(event) {
-  console.log("event >> ", event);
-  if (event.type === "touchstart") {
-    currentPath = new paper.Path();
-    currentPath.strokeColor = "black";
-    lastPoint = new paper.Point(
-      event.touches[0].clientX,
-      event.touches[0].clientY
-    );
-    currentPath.add(lastPoint);
-  } else if (event.type === "touchmove") {
-    var currentPoint = new paper.Point(
-      event.touches[0].clientX,
-      event.touches[0].clientY
-    );
-    var simulatedTouchArea =
-      event.touches[0].radiusX * event.touches[0].radiusY;
-    var strokeWidth = Math.sqrt(simulatedTouchArea) * 2;
-    currentPath.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
-    currentPath.add(currentPoint);
-    lastPoint = currentPoint;
+function onTouchStart(event) {
+  if (!panMode) {
+    currentPath = new paper.Path({
+      strokeColor: "black",
+      strokeWidth: initialWidth,
+      strokeCap: "round",
+      strokeJoin: "round",
+    });
+    currentPath.add(event.point);
   }
 }
 
-// Simulated touch events for the example
-document.addEventListener("touchstart", function (event) {
-  event.touches = [
-    {
-      clientX: event.clientX,
-      clientY: event.clientY,
-      radiusX: 20,
-      radiusY: 20,
-    },
-  ];
-  handlePressureEvents(event);
-});
-document.addEventListener("touchmove", function (event) {
-  event.touches = [
-    {
-      clientX: event.clientX,
-      clientY: event.clientY,
-      radiusX: 20,
-      radiusY: 20,
-    },
-  ];
-  handlePressureEvents(event);
-});
-document.addEventListener("touchend", function () {
-  currentPath = null; // Reset the path when the touch ends
-});
+function onTouchMove(event) {
+  if (!panMode) {
+    if (currentPath) {
+      // Adjust the stroke width based on pressure (assuming pressure is between 0 and 1)
+      var pressure = event.event.touches[0].force || 1; // Use force if available, default to 1
+      var minWidth = 2; // Minimum stroke width
+      var maxWidth = 20; // Maximum stroke width
+
+      // Calculate the new stroke width based on pressure
+      var newWidth = initialWidth + (maxWidth - initialWidth) * pressure;
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+      currentPath.strokeWidth = newWidth;
+
+      currentPath.add(event.point);
+    }
+  }
+}
+
+function onTouchEnd() {
+  currentPath = null; // Reset path when touch ends
+}
+
+// Attach the event listeners
+paper.view.onTouchStart = onTouchStart;
+paper.view.onTouchMove = onTouchMove;
+paper.view.onTouchEnd = onTouchEnd;
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
