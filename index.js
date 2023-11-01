@@ -42,7 +42,7 @@ lineThicknessSlider.addEventListener("input", function () {
 
 var lastPoint;
 
-// Handle touch events for pressure sensitivity (size-based)
+// Handle touch events for pressure sensitivity (simulated with touch area)
 function handlePressureEvents(event) {
   if (event.type === "touchstart") {
     currentPath = new paper.Path();
@@ -57,19 +57,40 @@ function handlePressureEvents(event) {
       event.touches[0].clientX,
       event.touches[0].clientY
     );
-    var touchArea = event.touches[0].radiusX * event.touches[0].radiusY;
-    var strokeWidth = Math.sqrt(touchArea) * 2;
-    path.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
+    var simulatedTouchArea =
+      event.touches[0].radiusX * event.touches[0].radiusY;
+    var strokeWidth = Math.sqrt(simulatedTouchArea) * 2;
+    currentPath.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
     currentPath.lineTo(currentPoint);
     lastPoint = currentPoint;
   }
 }
 
-// Add touch events for iPad/iPhone
-document.addEventListener("touchstart", handlePressureEvents);
-document.addEventListener("touchmove", handlePressureEvents);
+// Simulated touch events for the example
+document.addEventListener("touchstart", function (event) {
+  event.touches = [
+    {
+      clientX: event.clientX,
+      clientY: event.clientY,
+      radiusX: 20,
+      radiusY: 20,
+    },
+  ];
+  handlePressureEvents(event);
+});
+document.addEventListener("touchmove", function (event) {
+  event.touches = [
+    {
+      clientX: event.clientX,
+      clientY: event.clientY,
+      radiusX: 20,
+      radiusY: 20,
+    },
+  ];
+  handlePressureEvents(event);
+});
 document.addEventListener("touchend", function () {
-  currentPath = null; // Reset the path when the touch ends
+  path = null; // Reset the path when the touch ends
 });
 
 paper.view.onMouseDown = function (event) {
@@ -317,7 +338,6 @@ const copyElementOnCanvas = (elem) => {
 document.addEventListener("DOMContentLoaded", function () {
   // Initialize Paper.js
   setColorListener();
-  tool.activate();
 
   // addTextToPaper(100, 100, "Hello World!");
   // addImageToPaper(150, 200, "sample.jpeg");
