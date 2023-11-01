@@ -1,6 +1,16 @@
 paper.setup("myCanvas"); // 'myCanvas' should match the ID of your canvas element
 var canvas = paper.project.view;
 
+Pressure.set(canvas, {
+  change: function (force) {
+    // Calculate the path thickness based on pressure
+    const thickness = force * 10; // Adjust the factor as needed
+    if (currentPath) {
+      currentPath.strokeWidth = thickness;
+    }
+  },
+});
+
 var color = "#000000";
 const group = {};
 var selectedItem = null;
