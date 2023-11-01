@@ -25,9 +25,6 @@ var rect = null;
 
 var undoStack = [];
 
-var _LTracker = _LTracker || [];
-_LTracker.push({ logglyKey: "6c642504-b2b1-4ccc-9d4b-23e098fb95f5" });
-
 // Set the initial line thickness
 var lineThicknessSlider = document.getElementById("lineThicknessSlider");
 var lineThicknessValue = document.getElementById("lineThicknessValue");
@@ -47,6 +44,7 @@ var lastPoint;
 
 // Handle touch events for pressure sensitivity (simulated with touch area)
 function handlePressureEvents(event) {
+  console.log("event >> ", event);
   if (event.type === "touchstart") {
     currentPath = new paper.Path();
     currentPath.strokeColor = "black";
@@ -98,7 +96,7 @@ document.addEventListener("touchend", function () {
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
-    // console.log("inside onmousedown with panmode");
+    console.log("inside onmousedown with panmode");
     // Check if an item was clicked
     var hitResult = paper.project.hitTest(event.point);
     if (hitResult && hitResult.item) {
@@ -117,7 +115,7 @@ paper.view.onMouseDown = function (event) {
     }
     panStart = event.point;
   } else {
-    // console.log("inside onmousedown without panmode");
+    console.log("inside onmousedown without panmode");
     currentPath = new paper.Path();
     currentPath.strokeWidth = parseFloat(lineThicknessSlider.value);
     currentPath.strokeColor = color;
@@ -132,7 +130,7 @@ paper.view.onMouseDown = function (event) {
 paper.view.onMouseDrag = function (event) {
   // Check if we have a selected item
   if (panMode) {
-    // console.log("inside onmousedrag with panmode");
+    console.log("inside onmousedrag with panmode");
     var delta = event.point.subtract(panStart);
     var newPosition = selectedItem.position.add(delta);
 
@@ -152,7 +150,7 @@ paper.view.onMouseDrag = function (event) {
     boundingBox.position = selectedItem.position;
     panStart = event.point;
   } else {
-    // console.log("inside onmousedrag without panmode");
+    console.log("inside onmousedrag without panmode");
     if (items.length > 0) {
       items[items.length - 1].add(event.point);
     }
@@ -166,7 +164,7 @@ paper.view.onMouseUp = function (event) {
   }
   if (panMode) {
   } else {
-    // console.log("inside onmouseup without panmode");
+    console.log("inside onmouseup without panmode");
     currentPath.add(event.point);
     currentPath = null;
   }
@@ -193,7 +191,6 @@ const setColorListener = () => {
   picker.addEventListener(
     "change",
     (event) => {
-      // console.log(event.target.value);
       color = "#" + event.target.value;
     },
     { passive: true }
