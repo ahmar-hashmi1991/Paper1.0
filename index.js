@@ -25,6 +25,9 @@ var rect = null;
 
 var undoStack = [];
 
+var _LTracker = _LTracker || [];
+_LTracker.push({ logglyKey: "6c642504-b2b1-4ccc-9d4b-23e098fb95f5" });
+
 // Set the initial line thickness
 var lineThicknessSlider = document.getElementById("lineThicknessSlider");
 var lineThicknessValue = document.getElementById("lineThicknessValue");
