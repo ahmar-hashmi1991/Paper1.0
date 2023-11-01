@@ -50,48 +50,6 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
-var initialWidth = 5; // Initial stroke width
-
-function onPointerDown(event) {
-  if (!panMode) {
-    currentPath = new paper.Path({
-      strokeColor: "black",
-      strokeWidth: initialWidth,
-      strokeCap: "round",
-      strokeJoin: "round",
-    });
-    currentPath.add(event.point);
-  }
-}
-
-function onPointerMove(event) {
-  if (!panMode) {
-    if (currentPath) {
-      // Adjust the stroke width based on pressure
-      var pressure = event.pressure || 0.5; // Default to 0.5 if pressure is not available
-      var minWidth = 2; // Minimum stroke width
-      var maxWidth = 20; // Maximum stroke width
-
-      // Calculate the new stroke width based on pressure
-      var newWidth = initialWidth + (maxWidth - initialWidth) * pressure;
-      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-
-      currentPath.strokeWidth = newWidth;
-
-      currentPath.add(event.point);
-    }
-  }
-}
-
-function onPointerUp() {
-  currentPath = null; // Reset path when touch ends
-}
-
-// Attach the event listeners using the Pointer Events API
-paper.view.on("pointerdown", onPointerDown);
-paper.view.on("pointermove", onPointerMove);
-paper.view.on("pointerup", onPointerUp);
-
 paper.view.onMouseDown = function (event) {
   if (panMode) {
     console.log("inside onmousedown with panmode");
