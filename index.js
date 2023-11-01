@@ -90,7 +90,7 @@ document.addEventListener("touchmove", function (event) {
   handlePressureEvents(event);
 });
 document.addEventListener("touchend", function () {
-  path = null; // Reset the path when the touch ends
+  currentPath = null; // Reset the path when the touch ends
 });
 
 paper.view.onMouseDown = function (event) {
