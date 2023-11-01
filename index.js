@@ -40,18 +40,37 @@ lineThicknessSlider.addEventListener("input", function () {
   paper.view.draw();
 });
 
-var tool = new paper.Tool();
+var lastPoint;
 
-tool.onMouseDown = function (event) {
-  if (panMode) {
-  } else {
-    console.log("event >> ", event);
+// Handle touch events for pressure sensitivity (size-based)
+function handlePressureEvents(event) {
+  if (event.type === "touchstart") {
     currentPath = new paper.Path();
-    path.add(event.point);
-    path.strokeWidth = event.touchArea * 10;
-    paper.view.draw();
+    currentPath.strokeColor = "black";
+    lastPoint = new paper.Point(
+      event.touches[0].clientX,
+      event.touches[0].clientY
+    );
+    currentPath.moveTo(lastPoint);
+  } else if (event.type === "touchmove") {
+    var currentPoint = new paper.Point(
+      event.touches[0].clientX,
+      event.touches[0].clientY
+    );
+    var touchArea = event.touches[0].radiusX * event.touches[0].radiusY;
+    var strokeWidth = Math.sqrt(touchArea) * 2;
+    path.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
+    currentPath.lineTo(currentPoint);
+    lastPoint = currentPoint;
   }
-};
+}
+
+// Add touch events for iPad/iPhone
+document.addEventListener("touchstart", handlePressureEvents);
+document.addEventListener("touchmove", handlePressureEvents);
+document.addEventListener("touchend", function () {
+  currentPath = null; // Reset the path when the touch ends
+});
 
 paper.view.onMouseDown = function (event) {
   if (panMode) {
@@ -298,6 +317,7 @@ const copyElementOnCanvas = (elem) => {
 document.addEventListener("DOMContentLoaded", function () {
   // Initialize Paper.js
   setColorListener();
+  tool.activate();
 
   // addTextToPaper(100, 100, "Hello World!");
   // addImageToPaper(150, 200, "sample.jpeg");
