@@ -51,7 +51,7 @@ function handlePressureEvents(event) {
       event.touches[0].clientX,
       event.touches[0].clientY
     );
-    currentPath.moveTo(lastPoint);
+    currentPath.add(lastPoint);
   } else if (event.type === "touchmove") {
     var currentPoint = new paper.Point(
       event.touches[0].clientX,
@@ -61,7 +61,7 @@ function handlePressureEvents(event) {
       event.touches[0].radiusX * event.touches[0].radiusY;
     var strokeWidth = Math.sqrt(simulatedTouchArea) * 2;
     currentPath.strokeWidth = Math.min(strokeWidth, 20); // Adjust the max line width as needed
-    currentPath.lineTo(currentPoint);
+    currentPath.add(currentPoint);
     lastPoint = currentPoint;
   }
 }
